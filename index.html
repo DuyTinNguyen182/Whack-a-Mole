@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đập Chuột</title>
+
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      background: #111;
+      color: #fff;
+      margin: 0;
+    }
+
+    h1 {
+      margin: 15px 0;
+    }
+
+    #info {
+      display: flex;
+      justify-content: space-around;
+      font-size: 18px;
+      margin: 10px;
+    }
+
+    button {
+      padding: 12px 20px;
+      font-size: 18px;
+      border: none;
+      background: #28a745;
+      color: white;
+      border-radius: 8px;
+    }
+
+    #game {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      padding: 10px;
+    }
+
+    .hole {
+      width: 100%;
+      aspect-ratio: 1;
+      background: #333;
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .mole {
+      width: 80%;
+      position: absolute;
+      bottom: -100%;
+      left: 10%;
+      transition: bottom 0.2s;
+      user-select: none;
+      pointer-events: none;
+    }
+
+    .show {
+      bottom: 10%;
+      pointer-events: auto;
+    }
+
+    .mole img {
+      width: 100%;
+      height: auto;
+    }
+  </style>
+</head>
+<body>
+
+<h1>🐹 Đập Chuột</h1>
+
+<div id="info">
+  <div id="score">Điểm: 0</div>
+  <div id="time">30s</div>
+</div>
+
+<button onclick="startGame()">Bắt đầu</button>
+
+<div id="game"></div>
+
+<script>
+  const game = document.getElementById("game");
+  const scoreText = document.getElementById("score");
+  const timeText = document.getElementById("time");
+
+  let score = 0;
+  let time = 30;
+  let currentMole = null;
+  let moleInterval;
+  let gameInterval;
+
+  // ảnh chuột
+  const moleImg = "https://i.imgur.com/6X12F3G.png";
+
+  // tạo lỗ
+  for (let i = 0; i < 9; i++) {
+    const hole = document.createElement("div");
+    hole.classList.add("hole");
+
+    const mole = document.createElement("div");
+    mole.classList.add("mole");
+
+    const img = document.createElement("img");
+    img.src = moleImg;
+
+    mole.appendChild(img);
+    hole.appendChild(mole);
+    game.appendChild(hole);
+
+    const hit = () => {
+      if (mole === currentMole) {
+        score++;
+        scoreText.innerText = "Điểm: " + score;
+        mole.classList.remove("show");
+        currentMole = null;
+      }
+    };
+
+    hole.addEventListener("click", hit);
+    hole.addEventListener("touchstart", hit);
+  }
+
+  const moles = document.querySelectorAll(".mole");
+
+  function randomMole() {
+    if (currentMole) currentMole.classList.remove("show");
+
+    const index = Math.floor(Math.random() * moles.length);
+    currentMole = moles[index];
+    currentMole.classList.add("show");
+  }
+
+  function startGame() {
+    score = 0;
+    time = 30;
+    scoreText.innerText = "Điểm: 0";
+    timeText.innerText = "30s";
+
+    clearInterval(moleInterval);
+    clearInterval(gameInterval);
+
+    moleInterval = setInterval(randomMole, 800);
+
+    gameInterval = setInterval(() => {
+      time--;
+      timeText.innerText = time + "s";
+
+      if (time === 20) {
+        clearInterval(moleInterval);
+        moleInterval = setInterval(randomMole, 600);
+      }
+      if (time === 10) {
+        clearInterval(moleInterval);
+        moleInterval = setInterval(randomMole, 400);
+      }
+
+      if (time <= 0) {
+        clearInterval(gameInterval);
+        clearInterval(moleInterval);
+        alert("🎉 Điểm của bạn: " + score);
+      }
+    }, 1000);
+  }
+</script>
+
+</body>
+</html>
